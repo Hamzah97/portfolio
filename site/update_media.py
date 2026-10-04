@@ -1,0 +1,100 @@
+import os
+import json
+import re
+from pathlib import Path
+
+SITE_DIR = Path(__file__).resolve().parent
+JS_FILE = SITE_DIR / "assets" / "projects.js"
+
+def main():
+    print("Reading projects.js...")
+    with open(JS_FILE, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # Extract JSON string from the JS file
+    # It looks for "const projectsData = [ ... ];"
+    match = re.search(r'const projectsData = (\[.*\]);', content, re.DOTALL)
+    if not match:
+        print("Could not find projectsData array in projects.js")
+        return
+
+    json_str = re.sub(r",\s*]$", "]", match.group(1))
+    try:
+        projects = json.loads(json_str)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON in projects.js: {e}")
+        return
+
+    print("Scanning directories for media...")
+    for p in projects:
+        pid = p.get("id")
+        if not pid:
+            continue
+
+        media_list = []
+        
+        img_dir = SITE_DIR / "assets" / "images" / pid
+        vid_dir = SITE_DIR / "assets" / "videos" / pid
+        
+        # Scan images
+        if img_dir.exists():
+            for f in sorted(img_dir.iterdir()):
+                if f.is_file() and f.suffix.lower() in ('.png', '.jpg', '.jpeg', '.gif', '.webp'):
+                    src = f"assets/images/{pid}/{f.name}"
+                    media_list.append({"type": "image", "src": src, "caption": f.name})
+                    
+        # Scan videos
+        if vid_dir.exists():
+            for f in sorted(vid_dir.iterdir()):
+                if f.is_file() and f.suffix.lower() in ('.mp4', '.webm', '.ogg', '.mov'):
+                    src = f"assets/videos/{pid}/{f.name}"
+                    media_list.append({"type": "video", "src": src, "caption": f.name})
+                    
+        # Update media array in the project data
+        p["media"] = media_list
+        
+        # Find the best thumbnail
+        # 1. Look for an image containing 'cover' or 'thumbnail' in its name
+        thumbnail = None
+        for m in media_list:
+            if m['type'] == 'image' and ('cover' in m['src'].lower() or 'thumbnail' in m['src'].lower()):
+                thumbnail = m['src']
+                break
+                
+        # 2. Fallback to any file with 'cover' or 'thumbnail' (even a video)
+        if not thumbnail:
+            for m in media_list:
+                if 'cover' in m['src'].lower() or 'thumbnail' in m['src'].lower():
+                    thumbnail = m['src']
+                    break
+        
+        # 3. Fallback to the first image found
+        if not thumbnail:
+            for m in media_list:
+                if m['type'] == 'image':
+                    thumbnail = m['src']
+                    break
+                    
+        # 4. Final fallback to any media (e.g., if there are only videos)
+        if not thumbnail and media_list:
+            thumbnail = media_list[0]['src']
+            
+        if thumbnail:
+            p["thumbnail"] = thumbnail
+            print(f"[{pid}] Found {len(media_list)} media files. Thumbnail: {os.path.basename(thumbnail)}")
+        else:
+            print(f"[{pid}] No media found.")
+
+    # Write back to JS file
+    print("Saving updates to projects.js...")
+    new_json_str = json.dumps(projects, indent=2, ensure_ascii=False)
+    
+    new_content = content[:match.start(1)] + new_json_str + content[match.end(1):]
+
+    with open(JS_FILE, "w", encoding="utf-8") as f:
+        f.write(new_content)
+        
+    print("Done! You can now refresh your page.")
+
+if __name__ == "__main__":
+    main()

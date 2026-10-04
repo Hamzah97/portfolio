@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hamzah Bany Ata — Robotics &amp; Autonomous Systems Engineer</title>
+  <meta name="description" content="Portfolio of Hamzah Bany Ata — mechatronics engineer and field robotics systems builder. UAV R&amp;D, autonomous ground vehicles, sensor integration." />
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --border:   #30363d;
+      --accent:   #58a6ff;
+      --accent2:  #3fb950;
+      --warn:     #f0883e;
+      --text:     #c9d1d9;
+      --muted:    #8b949e;
+      --white:    #f0f6fc;
+      --radius:   10px;
+      --gap:      1.5rem;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; height: auto; display: block; border-radius: 6px; }
+    section { padding: 4rem 0; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; color: var(--white); }
+    h2 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 600; color: var(--white); margin-bottom: 1.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--white); margin-bottom: 0.4rem; }
+    p { margin-bottom: 0.9rem; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    /* ─── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .nav-brand { font-weight: 700; color: var(--white); font-size: 1rem; }
+    .nav-links { display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .nav-links a { color: var(--muted); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); text-decoration: none; }
+
+    /* ─── Hero ──────────────────────────────────────────────── */
+    #hero {
+      padding: 6rem 0 4rem;
+      background: radial-gradient(ellipse at 70% 20%, rgba(88,166,255,0.08) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(88,166,255,0.12);
+      border: 1px solid rgba(88,166,255,0.3);
+      color: var(--accent);
+      border-radius: 2rem;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.05em;
+    }
+    .hero-title { line-height: 1.15; margin-bottom: 0.4rem; }
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: var(--muted);
+      margin-bottom: 1.6rem;
+      max-width: 650px;
+    }
+    .hero-pitch {
+      font-size: 1.05rem;
+      color: var(--text);
+      max-width: 680px;
+      margin-bottom: 2rem;
+      border-left: 3px solid var(--accent);
+      padding-left: 1rem;
+    }
+    .hero-links { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.55rem 1.2rem;
+      border-radius: 6px;
+      font-size: 0.9rem; font-weight: 600;
+      transition: opacity 0.2s, transform 0.15s;
+      cursor: pointer; text-decoration: none;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.5rem; }
+    .hero-stat { display: flex; flex-direction: column; align-items: flex-start; }
+    .stat-num { font-size: 1.6rem; font-weight: 700; color: var(--white); line-height: 1; }
+    .stat-label { font-size: 0.78rem; color: var(--muted); }
+    .stat-sep { width: 1px; background: var(--border); }
+
+    /* ─── About ─────────────────────────────────────────────── */
+    #about { background: var(--surface); }
+    .about-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 3rem; align-items: start; }
+    .about-highlights { display: flex; flex-direction: column; gap: 0.9rem; margin-top: 0.5rem; }
+    .highlight-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.9rem 1.1rem;
+    }
+    .highlight-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .highlight-value { font-size: 0.95rem; color: var(--white); font-weight: 500; }
+
+    /* ─── Publications ──────────────────────────────────────── */
+    .pub-list { display: flex; flex-direction: column; gap: 1.1rem; }
+    .pub-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.4rem;
+      position: relative;
+    }
+    .pub-status {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 0.2rem 0.6rem; border-radius: 3px;
+      margin-bottom: 0.5rem;
+    }
+    .status-published { background: rgba(63,185,80,0.15); color: var(--accent2); border: 1px solid rgba(63,185,80,0.3); }
+    .status-accepted { background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
+    .status-review { background: rgba(240,136,62,0.12); color: var(--warn); border: 1px solid rgba(240,136,62,0.3); }
+    .pub-title { font-weight: 600; color: var(--white); margin-bottom: 0.3rem; font-size: 0.97rem; }
+    .pub-meta { font-size: 0.85rem; color: var(--muted); }
+    .pub-author-note { font-size: 0.78rem; color: var(--accent); font-weight: 600; margin-top: 0.35rem; }
+
+    /* ─── Projects ──────────────────────────────────────────── */
+    #projects { padding: 4rem 0; }
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.4rem; }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .project-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .card-img-wrap {
+      width: 100%; height: 200px;
+      overflow: hidden; background: #0d1117;
+      position: relative;
+    }
+    .card-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 0; transition: transform 0.3s;
+    }
+    .project-card:hover .card-img-wrap img { transform: scale(1.04); }
+    .card-body { padding: 1.1rem 1.2rem; flex: 1; display: flex; flex-direction: column; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.7rem; }
+    .tag {
+      font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 3px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .tag-robotics { background: rgba(88,166,255,0.12); color: var(--accent); }
+    .tag-uav      { background: rgba(63,185,80,0.12);  color: var(--accent2); }
+    .tag-vision   { background: rgba(240,136,62,0.12); color: var(--warn); }
+    .tag-control  { background: rgba(188,140,255,0.12); color: #bc8cff; }
+    .tag-optim    { background: rgba(255,212,59,0.12); color: #ffd43b; }
+    .tag-other    { background: rgba(139,148,158,0.12); color: var(--muted); }
+    .tag-p1 { background: rgba(88,166,255,0.2); color: var(--accent); border: 1px solid rgba(88,166,255,0.4); }
+    .card-desc { font-size: 0.88rem; color: var(--muted); flex: 1; }
+    .card-footer { margin-top: 0.9rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .card-link {
+      font-size: 0.8rem; font-weight: 600; color: var(--accent);
+      padding: 0.25rem 0.6rem; border: 1px solid var(--border);
+      border-radius: 4px; transition: background 0.2s;
+    }
+    .card-link:hover { background: rgba(88,166,255,0.1); text-decoration: none; }
+    .card-video-badge {
+      position: absolute; bottom: 8px; right: 8px;
+      background: rgba(0,0,0,0.7); color: #fff;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 0.2rem 0.5rem; border-radius: 3px;
+    }
+
+    /* ─── Skills ────────────────────────────────────────────── */
+    #skills { background: var(--surface); }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.2rem; }
+    .skill-group {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+    }
+    .skill-group-label {
+      font-size: 0.72rem; color: var(--accent); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem;
+    }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .skill-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px;
+    }
+
+    /* ─── Contact ───────────────────────────────────────────── */
+    #contact { padding: 4rem 0; text-align: center; }
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      max-width: 540px; margin: 0 auto;
+    }
+    .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+
+    /* ─── Footer ────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* ─── Responsive ────────────────────────────────────────── */
+    @media (max-width: 720px) {
+      .about-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      section { padding: 3rem 0; }
+    }
+  </style>
+  <script src="assets/projects.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════════════════ -->
+<nav>
+  <div class="container">
+    <span class="nav-brand">Hamzah Bany Ata</span>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#publications">Publications</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-badge">Open to funded PhD &amp; R&amp;D roles · Global</div>
+    <h1 class="hero-title">Hamzah Bany Ata</h1>
+    <p class="hero-subtitle">Robotics &amp; Autonomous Systems Engineer · Irbid, Jordan</p>
+    <p class="hero-pitch">
+      I design and deploy autonomous robotic systems — aerial and ground — for real-world field applications,
+      closing the gap between lab prototypes and deployable field systems.
+    </p>
+    <div class="hero-links">
+      <a class="btn btn-primary" href="assets/cv/Hamzah_CV_2026.pdf" target="_blank">
+        &#8659; Download CV
+      </a>
+      <a class="btn btn-ghost" href="https://www.linkedin.com/in/hamzahbanyata/" target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+      <a class="btn btn-ghost" href="https://orcid.org/0009-0008-8004-6119" target="_blank" rel="noopener">
+        ORCID
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/hamzah97" target="_blank" rel="noopener">
+        GitHub
+      </a>
+    </div>
+    <div class="hero-meta">
+      <div class="hero-stat">
+        <span class="stat-num">5+</span>
+        <span class="stat-label">Years Field Ops &amp; R&amp;D</span>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="hero-stat">
+        <span class="stat-num">2</span>
+        <span class="stat-label">Publications (incl. Q1)</span>
+      </div>
+       <div class="stat-sep"></div>
+      <div class="hero-stat">
+        <span class="stat-num">3.63</span>
+        <span class="stat-label">MSc GPA / 4.0 </span>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="hero-stat">
+        <span class="stat-num">3.72</span>
+        <span class="stat-label">BSc GPA / 4.0 · Top 5%</span>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="hero-stat">
+        <span class="stat-num">12+</span>
+        <span class="stat-label">Projects Showcased</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ═══════════════════════════════════════════════════════════
+     ABOUT
+════════════════════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <span class="section-label">About</span>
+    <h2>Field robotics systems builder</h2>
+    <div class="about-grid">
+      <div>
+        <p>
+          I am a mechatronics engineer with over five years of experience spanning tactical UAV operations, field deployment, and needs-based R&D for military autonomous systems. My core strength lies in end-to-end robotic system design — from mechanical payload engineering to software integration and field testing.
+        </p>
+        <p>
+          At the Jordanian Armed Forces Drones Department, I lead the integration and operational deployment of advanced tactical UAS platforms, including Quantum Systems Vector and AeroVironment PUMA 3 AE. I also develop custom solutions for operational needs, such as engineering a real-time KLV/MISB metadata parser that transforms live drone video telemetry into precise UTM target coordinates — an effort recognized by a special award from the Army Commander.
+        </p>
+        <p>
+          Beyond aerial platforms, my M.Sc. thesis demonstrated a pneumatic detect-to-extract demining payload integrated with a Clearpath Jackal UGV. The system utilized RTK/IMU navigation and successfully executed six of eight extraction trials on inert decoys in pilot field deployments. My long-term vision is to design and deploy autonomous robotic systems — aerial and ground — for real-world field applications like infrastructure inspection and agricultural monitoring, closing the gap between controlled-lab prototypes and robust field systems.
+        </p>
+      </div>
+      <div class="about-highlights">
+        <div class="highlight-item">
+          <div class="highlight-label">Current Role</div>
+          <div class="highlight-value">UAV R&amp;D Engineer — Jordanian Armed Forces Drones Dept. (Aug 2022–Present)</div>
+        </div>
+        <div class="highlight-item">
+          <div class="highlight-label">Education</div>
+          <div class="highlight-value">M.Sc. Mechatronics &amp; B.Sc. Mechanical Eng. — JUST (Jordan)</div>
+        </div>
+        <div class="highlight-item">
+          <div class="highlight-label">Certifications</div>
+          <div class="highlight-value">AeroVironment PUMA 3 AE (Operator & TTT); Quantum Systems Vector™ UAS-Operator; JAF VTOL fixed-wing UAV training (2025)</div>
+        </div>
+        <div class="highlight-item">
+          <div class="highlight-label">Award</div>
+          <div class="highlight-value">Army Commander special recognition — KLV/UTM real-time coordinate system (2026)</div>
+        </div>
+        <div class="highlight-item">
+          <div class="highlight-label">Target</div>
+          <div class="highlight-value">Fully funded PhD or robotics R&amp;D role (global)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ═══════════════════════════════════════════════════════════
+     PUBLICATIONS
+════════════════════════════════════════════════════════════════ -->
+<section id="publications">
+  <div class="container">
+    <span class="section-label">Publications</span>
+    <h2>Research output</h2>
+    <div class="pub-list">
+
+      <!-- Pub 1 -->
+      <div class="pub-card">
+        <span class="pub-status status-published">Published · Q1 Journal</span>
+        <div class="pub-title">
+          Multi-objective optimisation and exergoeconomic analysis of ammonia-based organic Rankine cycles for waste heat recovery in a Power-to-Ammonia-to-Power system
+        </div>
+        <div class="pub-meta">
+          Bany-Ata, A., <strong>Bany-Ata, H.</strong>, Kokash, H., Baqain, S., &amp; Shakoor, M. (2026).
+          <em>Energy Conversion and Management</em>, 365, 121738. Elsevier.
+          DOI: <a href="https://doi.org/10.1016/j.enconman.2026.121738" target="_blank" rel="noopener">10.1016/j.enconman.2026.121738</a>
+        </div>
+        <div class="pub-author-note">Hamzah Bany Ata: second author</div>
+      </div>
+
+      <!-- Pub 2 -->
+      <div class="pub-card">
+        <span class="pub-status status-published">Published &middot; Q2 Journal</span>
+        <div class="pub-title">
+          Dynamic Exergoenvironmental Priority Inversion in Power-to-Ammonia-to-Power Systems: The Static T<sub>0</sub> Fallacy in Hot-Arid Climates
+        </div>
+        <div class="pub-meta">
+          Bany-Ata, A., <strong>Bany-Ata, H.</strong>, Kokash, H., Baqain, S., &amp; Shakoor, M. (2026).
+          <em>Clean Technologies</em> (MDPI). DOI: <a href="https://doi.org/10.3390/cleantechnol8040120" target="_blank" rel="noopener">10.3390/cleantechnol8040120</a>
+        </div>
+        <div class="pub-author-note">Hamzah Bany Ata: second author</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ═══════════════════════════════════════════════════════════
+     PROJECTS
+════════════════════════════════════════════════════════════════ -->
+<section id="projects">
+  <div class="container">
+    <span class="section-label">Projects</span>
+    <h2>Showcase portfolio</h2>
+    <p style="color:var(--muted); margin-bottom:2rem; font-size:0.9rem;">
+      Priority-1 projects are highlighted.
+    </p>
+    <div class="projects-grid">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONTACT
+════════════════════════════════════════════════════════════════ -->
+<section id="contact">
+  <div class="container">
+    <span class="section-label">Contact</span>
+    <div class="contact-card">
+      <h2 style="margin-bottom:0.6rem;">Get in touch</h2>
+      <p style="color:var(--muted); font-size:0.9rem;">
+        Open to fully funded PhD positions and robotics R&amp;D roles worldwide.
+      </p>
+      <div class="contact-links">
+        <a class="btn btn-primary" href="mailto:hamzahbaniata97@gmail.com">
+          ✉ hamzahbaniata97@gmail.com
+        </a>
+        <a class="btn btn-ghost" href="https://www.linkedin.com/in/hamzahbanyata/" target="_blank" rel="noopener">
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <p>Hamzah Bany Ata · ORCID: <a href="https://orcid.org/0009-0008-8004-6119" target="_blank" rel="noopener">0009-0008-8004-6119</a> · Built 2026-09-26</p>
+  </div>
+</footer>
+
+
+<!-- PROJECT MODAL -->
+<div id="projectModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <h2 id="modalTitle">Project Title</h2>
+    <div class="modal-tags" id="modalTags"></div>
+    
+    <!-- Carousel -->
+    <div class="carousel-container">
+      <button class="carousel-prev" id="carouselPrev">&#10094;</button>
+      <div class="carousel-track" id="carouselTrack"></div>
+      <button class="carousel-next" id="carouselNext">&#10095;</button>
+    </div>
+    <div class="carousel-caption" id="carouselCaption"></div>
+
+    <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<style>
+/* Modal Styles */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); }
+.modal-content { background-color: var(--card-bg); margin: 5% auto; padding: 30px; border: 1px solid var(--border); border-radius: 12px; width: 80%; max-width: 800px; color: var(--text); position: relative; }
+.close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+.close-btn:hover { color: #fff; }
+.carousel-container { position: relative; width: 100%; height: 400px; background: #000; margin-top: 20px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.carousel-track img, .carousel-track video { max-width: 100%; max-height: 400px; display: none; }
+.carousel-track img.active, .carousel-track video.active { display: block; }
+.carousel-prev, .carousel-next { cursor: pointer; position: absolute; top: 50%; width: auto; padding: 16px; margin-top: -22px; color: white; font-weight: bold; font-size: 18px; transition: 0.6s ease; border-radius: 0 3px 3px 0; user-select: none; background-color: rgba(0,0,0,0.5); border: none; }
+.carousel-next { right: 0; border-radius: 3px 0 0 3px; }
+.carousel-prev { left: 0; }
+.carousel-caption { text-align: center; margin-top: 10px; font-size: 0.9rem; color: var(--muted); }
+.modal-tags { margin-top: 10px; margin-bottom: 20px; }
+.modal-desc { margin-top: 20px; line-height: 1.6; }
+.modal-footer { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 15px; }
+.project-card { cursor: pointer; transition: transform 0.2s; }
+.project-card:hover { transform: scale(1.02); }
+</style>
+
+<script>
+// Render Grid Dynamically
+function renderGrid() {
+  const grid = document.querySelector('.projects-grid');
+  grid.innerHTML = '';
+  const removedProjectIds = new Set(['manet-aco', 'urban-transit']);
+  projectsData.filter(p => !removedProjectIds.has(p.id)).forEach(p => {
+    // Generate tags HTML
+    let tagsHtml = '';
+    if (p.priority === 1) tagsHtml += `<span class="tag tag-p1">Priority 1</span>`;
+    p.tags.forEach(t => {
+      tagsHtml += `<span class="tag tag-robotics">${t}</span>`;
+    });
+    
+    // Generate footer HTML
+    let footerHtml = p.tech_stack.map(t => `<span class="card-link">${t}</span>`).join('');
+    
+    // Check for videos
+    let hasVideo = p.media && p.media.some(m => m.type === 'video');
+    let videoBadge = hasVideo ? `<span class="card-video-badge">▶ Video inside</span>` : '';
+    
+    const cardHTML = `
+      <div class="project-card" onclick="openModal('${p.id}')">
+        <div class="card-img-wrap">
+          <img src="${p.thumbnail}" alt="${p.title}" loading="lazy" />
+          ${videoBadge}
+        </div>
+        <div class="card-body">
+          <div class="card-tags">
+            ${tagsHtml}
+          </div>
+          <h3>${p.title}</h3>
+          <p class="card-desc">
+            ${p.short_desc}
+          </p>
+          <div class="card-footer">
+            ${footerHtml}
+          </div>
+          <div style="margin-top: 12px; font-size: 0.85rem; color: var(--accent); font-weight: bold;">
+            Read More &rarr;
+          </div>
+        </div>
+      </div>
+    `;
+    grid.innerHTML += cardHTML;
+  });
+}
+document.addEventListener('DOMContentLoaded', renderGrid);
+
+// Modal Logic
+const modal = document.getElementById('projectModal');
+const closeBtn = document.querySelector('.close-btn');
+let currentMediaIndex = 0;
+let currentProject = null;
+
+function openModal(projectId) {
+  currentProject = projectsData.find(p => p.id === projectId);
+  if (!currentProject) return;
+  
+  document.getElementById('modalTitle').innerText = currentProject.title;
+  document.getElementById('modalDesc').innerText = currentProject.full_desc;
+  
+  // Tags
+  const tagsHtml = currentProject.tags.map(t => `<span class="tag tag-robotics">${t}</span>`).join('');
+  document.getElementById('modalTags').innerHTML = tagsHtml;
+  
+  // Footer
+  const footerHtml = currentProject.tech_stack.map(t => `<span class="card-link">${t}</span>`).join('');
+  document.getElementById('modalFooter').innerHTML = footerHtml;
+  
+  // Carousel
+  currentMediaIndex = 0;
+  renderCarousel();
+  
+  modal.style.display = 'block';
+}
+
+function renderCarousel() {
+  const track = document.getElementById('carouselTrack');
+  const mediaList = currentProject.media;
+  track.innerHTML = '';
+  
+  if (mediaList.length === 0) {
+    track.innerHTML = '<p>No media available.</p>';
+    document.getElementById('carouselCaption').innerText = '';
+    return;
+  }
+  
+  mediaList.forEach((m, idx) => {
+    let el;
+    if (m.type === 'video') {
+      el = document.createElement('video');
+      el.src = m.src;
+      el.controls = true;
+    } else {
+      el = document.createElement('img');
+      el.src = m.src;
+    }
+    if (idx === currentMediaIndex) el.classList.add('active');
+    track.appendChild(el);
+  });
+  
+  document.getElementById('carouselCaption').innerText = mediaList[currentMediaIndex].caption || '';
+}
+
+document.getElementById('carouselPrev').addEventListener('click', () => {
+  if (!currentProject || currentProject.media.length <= 1) return;
+  currentMediaIndex = (currentMediaIndex - 1 + currentProject.media.length) % currentProject.media.length;
+  renderCarousel();
+});
+
+document.getElementById('carouselNext').addEventListener('click', () => {
+  if (!currentProject || currentProject.media.length <= 1) return;
+  currentMediaIndex = (currentMediaIndex + 1) % currentProject.media.length;
+  renderCarousel();
+});
+
+closeBtn.onclick = function() {
+  modal.style.display = 'none';
+  const videos = document.querySelectorAll('.carousel-track video');
+  videos.forEach(v => v.pause());
+}
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = 'none';
+    const videos = document.querySelectorAll('.carousel-track video');
+    videos.forEach(v => v.pause());
+  }
+}
+</script>
+
+</body>
+</html>
