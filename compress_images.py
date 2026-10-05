@@ -1,45 +1,148 @@
-import os
-from PIL import Image
+import argparse
+from pathlib import Path
 
-def optimize_images(directory, max_width=1200):
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            ext = file.lower().split('.')[-1]
-            if ext in ['jpg', 'jpeg', 'png']:
-                filepath = os.path.join(root, file)
-                try:
-                    with Image.open(filepath) as img:
-                        # Skip animated GIFs masquerading as other formats just in case
-                        if getattr(img, "is_animated", False):
-                            print(f"Skipping animated image: {file}")
-                            continue
+from PIL import Image, ImageOps
 
-                        # Convert RGBA PNGs to RGB if saving as JPEG, but we're keeping original format.
-                        # Wait, we just keep original format.
-                        original_format = img.format
-                        
-                        # Calculate new size if wider than max_width
-                        if img.width > max_width:
-                            wpercent = (max_width / float(img.width))
-                            hsize = int((float(img.height) * float(wpercent)))
-                            img = img.resize((max_width, hsize), Image.Resampling.LANCZOS)
-                            print(f"Resized: {file} to {max_width}x{hsize}")
 
-                        # Save optimized
-                        if ext in ['jpg', 'jpeg']:
-                            # Ensure image is in a mode that can be saved as JPEG
-                            if img.mode != 'RGB':
-                                img = img.convert('RGB')
-                            img.save(filepath, 'JPEG', optimize=True, quality=80)
-                            print(f"Optimized JPG: {file}")
-                        elif ext == 'png':
-                            img.save(filepath, 'PNG', optimize=True)
-                            print(f"Optimized PNG: {file}")
-                except Exception as e:
-                    print(f"Failed to process {file}: {e}")
+SITE_DIR = Path(__file__).resolve().parent
+IMAGES_DIR = SITE_DIR / "assets" / "images"
+SOURCE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"}
+STILL_QUALITY = 82
+ANIMATED_QUALITY = 72
 
-if __name__ == '__main__':
-    images_dir = r"C:\Users\hamza\OneDrive\Documents\GitHub\portfolio\assets\images"
-    print("Starting image optimization...")
-    optimize_images(images_dir)
-    print("Finished optimization.")
+
+def _prepare_frame(frame, max_width):
+    if frame.width > max_width:
+        frame.thumbnail(
+            (max_width, frame.height),
+            Image.Resampling.LANCZOS,
+        )
+
+    has_transparency = "A" in frame.getbands() or "transparency" in frame.info
+    return frame.convert("RGBA" if has_transparency else "RGB")
+
+
+def optimize_images(directory, max_width=1200, force=False):
+    if max_width < 1:
+        raise ValueError("max_width must be greater than zero")
+
+    directory = Path(directory)
+    if not directory.is_dir():
+        raise FileNotFoundError(f"Image directory does not exist: {directory}")
+
+    image_paths = sorted(
+        path
+        for path in directory.rglob("*")
+        if path.is_file() and path.suffix.lower() in SOURCE_EXTENSIONS
+    )
+    total_original_bytes = 0
+    total_optimized_bytes = 0
+    processed_count = 0
+    skipped_count = 0
+
+    for path in image_paths:
+        destination = path.with_name(f"{path.stem}.optimized.webp")
+        temporary_path = destination.with_name(
+            f"{destination.stem}.tmp{destination.suffix}"
+        )
+        if (
+            not force
+            and destination.is_file()
+            and destination.stat().st_mtime_ns >= path.stat().st_mtime_ns
+        ):
+            skipped_count += 1
+            print(f"Already optimized: {path.name}")
+            continue
+
+        try:
+            with Image.open(path) as image:
+                frame_count = getattr(image, "n_frames", 1)
+                is_animation = frame_count > 1
+
+                if is_animation:
+                    frames = []
+                    durations = []
+                    for frame_index in range(frame_count):
+                        image.seek(frame_index)
+                        frames.append(_prepare_frame(image.convert("RGBA"), max_width))
+                        duration = image.info.get("duration", 100)
+                        durations.append(100 if duration is None else int(duration))
+
+                    frames[0].save(
+                        temporary_path,
+                        format="WEBP",
+                        save_all=True,
+                        append_images=frames[1:],
+                        duration=durations,
+                        loop=image.info.get("loop", 0),
+                        quality=ANIMATED_QUALITY,
+                        method=4,
+                    )
+                else:
+                    frame = ImageOps.exif_transpose(image)
+                    frame = _prepare_frame(frame, max_width)
+                    frame.save(
+                        temporary_path,
+                        format="WEBP",
+                        quality=STILL_QUALITY,
+                        method=4,
+                    )
+
+            temporary_path.replace(destination)
+        except (OSError, ValueError) as error:
+            temporary_path.unlink(missing_ok=True)
+            print(f"ERROR: Could not optimize {path}: {error}")
+            raise
+
+        source_size = path.stat().st_size
+        optimized_size = destination.stat().st_size
+        processed_count += 1
+        total_original_bytes += source_size
+        total_optimized_bytes += optimized_size
+        reduction = 1 - optimized_size / source_size if source_size else 0
+        print(
+            f"{path.name}: {source_size / 1024:.0f} KB -> "
+            f"{optimized_size / 1024:.0f} KB ({reduction:.0%} smaller)"
+        )
+
+    total_reduction = (
+        1 - total_optimized_bytes / total_original_bytes
+        if total_original_bytes
+        else 0
+    )
+    print(
+        f"Optimized {processed_count} images, skipped {skipped_count}: "
+        f"{total_original_bytes / 1048576:.1f} MiB -> "
+        f"{total_optimized_bytes / 1048576:.1f} MiB "
+        f"({total_reduction:.0%} smaller)"
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Create smaller WebP copies of portfolio images."
+    )
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        type=Path,
+        default=IMAGES_DIR,
+        help="Image directory (defaults to this site's assets/images folder)",
+    )
+    parser.add_argument(
+        "--max-width",
+        type=int,
+        default=1200,
+        help="Maximum width for generated images (default: 1200px)",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Regenerate WebP copies that already exist",
+    )
+    args = parser.parse_args()
+    optimize_images(args.directory, max_width=args.max_width, force=args.force)
+
+
+if __name__ == "__main__":
+    main()

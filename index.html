@@ -622,7 +622,9 @@ function openModal(projectId) {
 function renderCarousel() {
   const track = document.getElementById('carouselTrack');
   const mediaList = currentProject.media;
-  track.innerHTML = '';
+  const currentVideo = track.querySelector('video');
+  if (currentVideo) currentVideo.pause();
+  track.replaceChildren();
   
   if (mediaList.length === 0) {
     track.innerHTML = '<p>No media available.</p>';
@@ -630,21 +632,22 @@ function renderCarousel() {
     return;
   }
   
-  mediaList.forEach((m, idx) => {
-    let el;
-    if (m.type === 'video') {
-      el = document.createElement('video');
-      el.src = m.src;
-      el.controls = true;
-    } else {
-      el = document.createElement('img');
-      el.src = m.src;
-    }
-    if (idx === currentMediaIndex) el.classList.add('active');
-    track.appendChild(el);
-  });
+  const currentMedia = mediaList[currentMediaIndex];
+  let el;
+  if (currentMedia.type === 'video') {
+    el = document.createElement('video');
+    el.src = currentMedia.src;
+    el.controls = true;
+  } else {
+    el = document.createElement('img');
+    el.src = currentMedia.src;
+    el.alt = currentMedia.caption || currentProject.title;
+    el.decoding = 'async';
+  }
+  el.classList.add('active');
+  track.appendChild(el);
   
-  document.getElementById('carouselCaption').innerText = mediaList[currentMediaIndex].caption || '';
+  document.getElementById('carouselCaption').innerText = currentMedia.caption || '';
 }
 
 document.getElementById('carouselPrev').addEventListener('click', () => {

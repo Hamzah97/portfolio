@@ -39,9 +39,28 @@ def main():
         # Scan images
         if img_dir.exists():
             for f in sorted(img_dir.iterdir()):
-                if f.is_file() and f.suffix.lower() in ('.png', '.jpg', '.jpeg', '.gif', '.webp'):
-                    src = f"assets/images/{pid}/{f.name}"
-                    media_list.append({"type": "image", "src": src, "caption": f.name})
+                if not f.is_file() or f.suffix.lower() not in (
+                    '.png', '.jpg', '.jpeg', '.gif', '.webp'
+                ):
+                    continue
+
+                if f.suffix.lower() == '.webp':
+                    if f.stem.endswith('.optimized'):
+                        continue
+                    source_extensions = ('.png', '.jpg', '.jpeg', '.gif')
+                    if any(f.with_suffix(ext).exists() for ext in source_extensions):
+                        continue
+                    image_file = f
+                else:
+                    optimized = f.with_name(f"{f.stem}.optimized.webp")
+                    image_file = (
+                        optimized
+                        if optimized.is_file() and optimized.stat().st_size < f.stat().st_size
+                        else f
+                    )
+
+                src = f"assets/images/{pid}/{image_file.name}"
+                media_list.append({"type": "image", "src": src, "caption": f.name})
                     
         # Scan videos
         if vid_dir.exists():
