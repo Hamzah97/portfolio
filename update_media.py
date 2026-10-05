@@ -60,14 +60,32 @@ def main():
                     )
 
                 src = f"assets/images/{pid}/{image_file.name}"
-                media_list.append({"type": "image", "src": src, "caption": f.name})
+                media = {"type": "image", "src": src, "caption": f.name}
+                if image_file != f:
+                    media["fallback"] = f"assets/images/{pid}/{f.name}"
+                media_list.append(media)
                     
         # Scan videos
         if vid_dir.exists():
             for f in sorted(vid_dir.iterdir()):
-                if f.is_file() and f.suffix.lower() in ('.mp4', '.webm', '.ogg', '.mov'):
-                    src = f"assets/videos/{pid}/{f.name}"
-                    media_list.append({"type": "video", "src": src, "caption": f.name})
+                if (
+                    not f.is_file()
+                    or f.suffix.lower() not in ('.mp4', '.webm', '.ogg', '.mov', '.m4v')
+                    or f.stem.endswith('.optimized')
+                ):
+                    continue
+
+                optimized = f.with_name(f"{f.stem}.optimized.mp4")
+                video_file = (
+                    optimized
+                    if optimized.is_file() and optimized.stat().st_size < f.stat().st_size
+                    else f
+                )
+                src = f"assets/videos/{pid}/{video_file.name}"
+                media = {"type": "video", "src": src, "caption": f.name}
+                if video_file != f:
+                    media["fallback"] = f"assets/videos/{pid}/{f.name}"
+                media_list.append(media)
                     
         # Update media array in the project data
         p["media"] = media_list
@@ -100,6 +118,14 @@ def main():
             
         if thumbnail:
             p["thumbnail"] = thumbnail
+            thumbnail_media = next(
+                (m for m in media_list if m["type"] == "image" and m["src"] == thumbnail),
+                None,
+            )
+            if thumbnail_media and "fallback" in thumbnail_media:
+                p["thumbnailFallback"] = thumbnail_media["fallback"]
+            else:
+                p.pop("thumbnailFallback", None)
             print(f"[{pid}] Found {len(media_list)} media files. Thumbnail: {os.path.basename(thumbnail)}")
         else:
             print(f"[{pid}] No media found.")

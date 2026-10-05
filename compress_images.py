@@ -9,6 +9,9 @@ IMAGES_DIR = SITE_DIR / "assets" / "images"
 SOURCE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"}
 STILL_QUALITY = 82
 ANIMATED_QUALITY = 72
+FALLBACK_MAX_WIDTH = 960
+FALLBACK_STILL_QUALITY = 70
+FALLBACK_ANIMATED_QUALITY = 62
 
 
 def _prepare_frame(frame, max_width):
@@ -20,6 +23,39 @@ def _prepare_frame(frame, max_width):
 
     has_transparency = "A" in frame.getbands() or "transparency" in frame.info
     return frame.convert("RGBA" if has_transparency else "RGB")
+
+
+def _save_webp(source, destination, max_width, still_quality, animated_quality):
+    with Image.open(source) as image:
+        frame_count = getattr(image, "n_frames", 1)
+        if frame_count > 1:
+            frames = []
+            durations = []
+            for frame_index in range(frame_count):
+                image.seek(frame_index)
+                frames.append(_prepare_frame(image.convert("RGBA"), max_width))
+                duration = image.info.get("duration", 100)
+                durations.append(100 if duration is None else int(duration))
+
+            frames[0].save(
+                destination,
+                format="WEBP",
+                save_all=True,
+                append_images=frames[1:],
+                duration=durations,
+                loop=image.info.get("loop", 0),
+                quality=animated_quality,
+                method=4,
+            )
+        else:
+            frame = ImageOps.exif_transpose(image)
+            frame = _prepare_frame(frame, max_width)
+            frame.save(
+                destination,
+                format="WEBP",
+                quality=still_quality,
+                method=4,
+            )
 
 
 def optimize_images(directory, max_width=1200, force=False):
@@ -55,38 +91,25 @@ def optimize_images(directory, max_width=1200, force=False):
             continue
 
         try:
-            with Image.open(path) as image:
-                frame_count = getattr(image, "n_frames", 1)
-                is_animation = frame_count > 1
-
-                if is_animation:
-                    frames = []
-                    durations = []
-                    for frame_index in range(frame_count):
-                        image.seek(frame_index)
-                        frames.append(_prepare_frame(image.convert("RGBA"), max_width))
-                        duration = image.info.get("duration", 100)
-                        durations.append(100 if duration is None else int(duration))
-
-                    frames[0].save(
-                        temporary_path,
-                        format="WEBP",
-                        save_all=True,
-                        append_images=frames[1:],
-                        duration=durations,
-                        loop=image.info.get("loop", 0),
-                        quality=ANIMATED_QUALITY,
-                        method=4,
-                    )
-                else:
-                    frame = ImageOps.exif_transpose(image)
-                    frame = _prepare_frame(frame, max_width)
-                    frame.save(
-                        temporary_path,
-                        format="WEBP",
-                        quality=STILL_QUALITY,
-                        method=4,
-                    )
+            _save_webp(
+                path,
+                temporary_path,
+                max_width,
+                STILL_QUALITY,
+                ANIMATED_QUALITY,
+            )
+            if temporary_path.stat().st_size >= path.stat().st_size:
+                _save_webp(
+                    path,
+                    temporary_path,
+                    min(max_width, FALLBACK_MAX_WIDTH),
+                    FALLBACK_STILL_QUALITY,
+                    FALLBACK_ANIMATED_QUALITY,
+                )
+            if temporary_path.stat().st_size >= path.stat().st_size:
+                temporary_path.unlink()
+                print(f"Kept original: {path.name} (WebP copy was not smaller)")
+                continue
 
             temporary_path.replace(destination)
         except (OSError, ValueError) as error:
